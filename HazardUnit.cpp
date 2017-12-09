@@ -24,7 +24,6 @@ void HazardUnit::Forward(Instruction i, Instruction i1, Instruction i2, Instruct
 				if (i.inst == "SW")
 				{
 					tomem = 1;
-					toalu = 0;
 				}
 			}
 		}
@@ -42,7 +41,6 @@ void HazardUnit::Forward(Instruction i, Instruction i1, Instruction i2, Instruct
 				if (i.inst == "SW")
 				{
 					tomem = 1;
-					toalu = 0;
 				}
 			}
 			if (i4.inst == "LW")
@@ -75,7 +73,6 @@ void HazardUnit::Forward(Instruction i, Instruction i1, Instruction i2, Instruct
 				if (i.inst == "SW")
 				{
 					tomem = 1;
-					toalu = 0;
 				}
 			}
 			if (i3.inst == "LW")
@@ -97,7 +94,6 @@ void HazardUnit::Forward(Instruction i, Instruction i1, Instruction i2, Instruct
 					if (i.inst == "SW")
 					{
 						tomem = 1;
-						toalu = 0;
 					}
 				}
 			}
@@ -115,7 +111,6 @@ void HazardUnit::Forward(Instruction i, Instruction i1, Instruction i2, Instruct
 					if (i.inst == "SW")
 					{
 						tomem = 1;
-						toalu = 0;
 					}
 				}
 				if (i2.inst == "LW")
@@ -136,7 +131,6 @@ void HazardUnit::Forward(Instruction i, Instruction i1, Instruction i2, Instruct
 					if (i.inst == "SW")
 					{
 						tomem = 1;
-						toalu = 0;
 					}
 				}
 			}
@@ -154,7 +148,6 @@ void HazardUnit::Forward(Instruction i, Instruction i1, Instruction i2, Instruct
 					if (i.inst == "SW")
 					{
 						tomem = 1;
-						toalu = 0;
 					}
 				}
 				if (i1.inst == "LW")

@@ -11,7 +11,7 @@
 PC:: PC(): pc(0)
 {}
 
-void PC::increment(int rsdata, int jimm, int imm, uint8_t jmp, bool& JP)
+void PC::increment(int rsdata, int jimm, int imm, uint8_t jmp, bool& JP, bool inc)
 {
 	switch (jmp)
 	{
@@ -23,11 +23,15 @@ void PC::increment(int rsdata, int jimm, int imm, uint8_t jmp, bool& JP)
 
 	case 2:
 		if ((JP) && (ProcedureStack.size() < 4))
-			ProcedureStack.push(pc);
+			ProcedureStack.push(pc+1);
 		pc = jimm;
 		break;
 
-	case 3: pc = imm;
+	case 3: 
+		if (!inc)
+			pc += imm;
+		else
+			pc += 1;
 		break;
 	case 4:
 		if (!ProcedureStack.empty())

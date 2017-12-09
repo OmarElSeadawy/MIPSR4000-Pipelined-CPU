@@ -44,7 +44,10 @@ void ControlUnit::getSignals(char type,string inst, bool & RegWrite, bool & RegD
 			RegWrite = 0;
 		}
 		else if (inst == "BLE")
+		{
 			jmp = 3;
+			ALUOp = 2;
+		}
 		else if (inst == "ADDI")
 		{
 			RegDst = 0;

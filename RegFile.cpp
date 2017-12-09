@@ -46,7 +46,7 @@ void RegFile::WB(bool RegDst, bool RegWrite,bool memwrite, unsigned int rdaddr, 
 				else
 				{
 					REGS[rtwriteaddr] = writedata;
-					cout << REGS[rtwriteaddr] << endl;
+						cout << REGS[rtwriteaddr] << endl;
 				}
 			}
 	}

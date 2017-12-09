@@ -10,6 +10,7 @@
 #include "Imem.h"
 #include "PC.h"
 #include "HazardUnit.h"
+#include "BTB.h"
 using namespace std;
 
 
@@ -20,6 +21,7 @@ class Processor{
 	ALU alu;
 	ControlUnit CU;
 	PC pc;
+	BTB btb;
 	int instcount = 0;
 	HazardUnit HU;
 public:

@@ -3,10 +3,17 @@
 #include <stdint.h>
 using namespace std;
 
+struct TT
+{
+	uint8_t pb;
+	int target;
+};
 class BTB{
-	unordered_map<int, uint8_t> btb;
+	unordered_map<int, TT> btb;
 public:
 	BTB();
-	void insert(int);
-	void changestate(int, bool);
+	bool find(int);
+	void insert(int,int);
+	void changestate(int, bool,bool&);
+	uint8_t BTB::getpb(int pc);
 };

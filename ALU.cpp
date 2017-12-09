@@ -26,14 +26,14 @@ void ALU::EX(bool &zflag, bool ALUSrc, int ALUOp,int in1, int imm,int in2,int &r
 		else if (ALUOp == 1 && ALUSrc)//readdata1 - sign_ext_imm
 			result = in1 - imm;
 
-		else if (ALUOp == 1 && !ALUSrc)//readdata1 - readdata2
-			result = in1 - in2;
+		else if (ALUOp == 1 && !ALUSrc)//readdata1 < readdata2
+			result = (in1 < in2);
 
 		else if (ALUOp == 2 && ALUSrc)//readdata1 ^ sign_ext_imm
 			result = in1 ^ imm;
 
-		else if (ALUOp == 2 && !ALUSrc)//readdata1 ^ readdata2
-			result = in1 ^ in2;
+		else if (ALUOp == 2 && !ALUSrc)//Branch Less than or Equal
+			result = (in1 <= in2);
 
 		else throw invalid_argument("Invalid ALU operation code");
 }

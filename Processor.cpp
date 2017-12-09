@@ -116,22 +116,35 @@ void Processor::loadprogram(string filename){
 		else if (temp == "JP")
 		{
 			c = 10;
-			Type = 'J';
+			Type = 'W';
 		}
 		else if (temp == "RP")
 		{
 			c = 11;
 			Type = 'Q';
 		}
-		else if (temp == "\n")
+		/*else if (temp == "\n")
 		{
 			SourceCode.ignore(256, '\n');
 			continue;
+		}*/
+		else if (temp == "EXIT")
+		{	
+			Type = 'X';
 		}
 		else
 			Type = 'E';
 		switch (Type)
 		{
+		case 'X':
+			SourceCode.ignore(256, '\n');
+			rs1 = 17;
+			rt1 = 17;
+			rd1 = 17;
+			iimm = 77777;
+			jumpim = 77777;
+		break;
+		
 		case 'Q':
 			SourceCode.ignore(256, '\n');
 			rs1 = 17;
@@ -279,12 +292,9 @@ void Processor::loadprogram(string filename){
 			throw m;
 			break;
 
-		case 'X':
-			break;
 
 		}
-		if (Type != 'X')
-		{
+
 			Instruction instr;
 			instr.rs = rs1;
 			instr.rt = rt1;
@@ -296,9 +306,6 @@ void Processor::loadprogram(string filename){
 			instr.pc = i - 1;
 			imem.insert(i - 1, instr);
 			cout << instr.inst << " " << instr.rd << " " << instr.rs << " " << instr.rt << " " << instr.imm << " " << instr.jimm << endl;
-			if (i == 4)
-				cout << " " << endl;
-		}
 
 		i++; instcount++;
 	} while (!SourceCode.eof());
@@ -318,10 +325,13 @@ void Processor::execute()
 	int aluresults[100] = { 0 }, rsdatas[100] = { 0 }, rtdatas[100] = { 0 }, memouts[100] = { 0 }, imms[100] = { 0 }, jimms[100] = { 0 };
 	bool jps[100] = { 0 };
 	bool zflag;
+	bool mistake = false;
 	uint8_t st=0;
+	bool inc; //Used in branching
 	uint8_t totalst=0;
 	int cnt;
 	int cycles = 1;
+	int ExitCounter = 0;
 	bool enwb, entc, ends, endf, enex, enrf, enis,enif;
 	bool written;
 	while (cycles <=(8+(instcount-1)+totalst))
@@ -351,39 +361,55 @@ void Processor::execute()
 				enrf = 0;
 			else
 				enrf = 1;
-			if (cycles<2)
+			if (cycles < 2)
 				enis = 0;
 			else
 				enis = 1;
-			if (cycles <1)
+			if (cycles < 1)
 				enif = 0;
-			else 
+			else
 				enif = 1;
 
-			if (cycles>instcount+totalst)
+			if (cycles > instcount + totalst)
 				enif = 0;
-			if (cycles > instcount + 1+totalst)
+			if (cycles > instcount + 1 + totalst)
 				enis = 0;
-			if (cycles > instcount + 2+totalst)
+			if (cycles > instcount + 2 + totalst)
 				enrf = 0;
-			if (cycles > instcount + 3+totalst)
+			if (cycles > instcount + 3 + totalst)
 				enex = 0;
-			if (cycles > instcount + 4+totalst)
+			if (cycles > instcount + 4 + totalst)
 				endf = 0;
-			if (cycles > instcount + 5+totalst)
+			if (cycles > instcount + 5 + totalst)
 				ends = 0;
-			if (cycles > instcount + 6+totalst)
+			if (cycles > instcount + 6 + totalst)
 				entc = 0;
-			if (cycles > instcount + 7+totalst)
+			if (cycles > instcount + 7 + totalst)
 				enwb = 0;
 
-			if (cycles == 8)
+			if (ExitCounter > 6)
+				enif = enis = 0;
+			else if (ExitCounter > 5)
+				enif = enis = enrf = 0;
+			else if (ExitCounter > 4)
+				enif = enis = enrf = enex = 0;
+			else if (ExitCounter > 3)
+				enif = enis = enrf = enex = endf = 0;
+			else if (ExitCounter > 2)
+				enif = enis = enrf = enex = endf = ends = 0;
+			else if (ExitCounter > 1)
+				enif = enis = enrf = enex = endf = ends = entc = 0;
+			else if (ExitCounter > 0)
+				enif = enis = enrf = enex = endf = ends = entc = enwb = 0;
+
+			if (cycles == 10)
 				int x = 1;
-			
+		
+			cout << "CYCLE "<< cycles << ": ";
 
 			if (enwb)
 			{
-				if (cnt > 0)
+				/*if (cnt > 0)
 				{
 					totalst -= 2;
 					if (cnt==1)
@@ -393,15 +419,31 @@ void Processor::execute()
 						memouts[cycles - 2], instarray[cycles - 6 - totalst].rt);
 					totalst += 2;
 				}
-				else
+				else if (cnt == 0 || cnt == -1)
+				{
+					cnt--;
+				}
+				else*/
+				if (cnt == 1)
+				{
 					registerfile.WB(regdsts[cycles - 6 - totalst], regwrites[cycles - 6 - totalst],
-					memwrs[cycles - 6 - totalst], instarray[cycles - 6 - totalst].rd, aluresults[cycles - 4],
-					memouts[cycles - 2], instarray[cycles - 6 - totalst].rt);
+						memwrs[cycles - 6 - totalst], instarray[cycles - 6 - totalst].rd, aluresults[cycles - 4],
+						memouts[cycles - 2], instarray[cycles - 6 - totalst].rt);
+					cnt--;
+				}
+				else if ((cnt == 3) || (cnt == 2))
+				{
+
+				}
+				else
+					registerfile.WB(regdsts[cycles - 6], regwrites[cycles - 6],
+					memwrs[cycles - 6], instarray[cycles - 6].rd, aluresults[cycles - 4],
+					memouts[cycles - 2], instarray[cycles - 6].rt);
 			}
 
 			if (entc)
 			{
-				if (cnt > 1)
+				/*if (cnt > 1)
 				{
 					totalst -= 2;
 					if (cnt==2)
@@ -409,71 +451,175 @@ void Processor::execute()
 					datamem.TagCheck(memrds[cycles - 5 - totalst], memouts[cycles]);
 					totalst += 2;
 				}
+				else if (cnt == 0 ||  cnt == -1 )
+				{
+				}*/
+				if (cnt == 2)
+				{
+					datamem.TagCheck(memrds[cycles - 5 - totalst], memouts[cycles]);
+					cnt--;
+				}
+				else if ((cnt == 4) || (cnt == 3))
+				{
+
+				}
 				else
-				datamem.TagCheck(memrds[cycles - 5 - totalst], memouts[cycles]);
+					datamem.TagCheck(memrds[cycles - 5], memouts[cycles]);
 			}
 			
 			if (ends)
 			{
-				if (cnt == 3)
+				/*if (cnt == 3)
 				{
 					totalst -= 2;
 					cnt--;
 					datamem.DataSecond(memwrs[cycles - 4 - totalst], memrds[cycles - 4 - totalst], memouts[cycles]);
 					totalst += 2;
 				}
-				else	
-				datamem.DataSecond(memwrs[cycles - 4 - totalst], memrds[cycles - 4 - totalst], memouts[cycles]);
+				else if (cnt == 1 || cnt==0)
+				{
+
+				}*/
+				if (cnt == 3)
+				{
+					datamem.DataSecond(memwrs[cycles - 4 - totalst], memrds[cycles - 4 - totalst], memouts[cycles]);
+					cnt--;
+				}
+				else if ((cnt == 5) || (cnt == 4))
+				{
+
+				}
+				else
+					datamem.DataSecond(memwrs[cycles - 4], memrds[cycles - 4], memouts[cycles]);
 			}
 			
 			if (endf)
 			{
-				if (instnumsrts[cycles - 3-totalst] != 0)
-				{
-					if (tomems[cycles - 3-totalst] != 0)
-					{
-						if (tofieldrts[cycles - 3-totalst] == 1)
-							rtdatas[cycles - 2] = aluresults[cycles - 2];
-					}
-				}
-				datamem.DataFirst(aluresults[cycles - 1], rtdatas[cycles - 2], memwrs[cycles - 3-totalst]);
-			}
 
+
+				if (cnt == 4)
+				{
+					if (instnumsrts[cycles - 3 - totalst] != 0)
+					{
+						if (tomems[cycles - 3 - totalst] != 0)
+						{
+							if (tofieldrts[cycles - 3 - totalst] == 1)
+								rtdatas[cycles - 2] = aluresults[cycles - 2];
+						}
+					}
+
+					datamem.DataFirst(aluresults[cycles - 1], rtdatas[cycles - 2], memwrs[cycles - 3 - totalst]);
+					cnt--;
+				}
+				else
+				{
+					if (instnumsrts[cycles - 3] != 0)
+					{
+						if (tomems[cycles - 3] != 0)
+						{
+							if (tofieldrts[cycles - 3] == 1)
+								rtdatas[cycles - 2] = aluresults[cycles - 2];
+						}
+					}
+
+					datamem.DataFirst(aluresults[cycles - 1], rtdatas[cycles - 2], memwrs[cycles - 3]);
+				}
+			}
+			if (cycles == 8)
+				int x = 1;
 			if (enex)
 			{
-				if (instnums[cycles - 2-totalst] != 0)
+				if (cnt == 5)
 				{
-					if (toalus[cycles - 2-totalst])
+					if (instnums[cycles - 2 - totalst] != 0)
 					{
-						if (!fromems[cycles - 2-totalst])
+						if (toalus[cycles - 2 - totalst])
 						{
-							if (tofields[cycles - 2-totalst] == 1)
-								rsdatas[cycles - 1] = aluresults[cycles - instnums[cycles - 2]];
-						}
-						else
-						{
-							rsdatas[cycles - 1] = memouts[cycles - 1];
+							if (!fromems[cycles - 2 - totalst])
+							{
+								if (tofields[cycles - 2 - totalst] == 1)
+									rsdatas[cycles - 1] = aluresults[cycles - instnums[cycles - 2]];
+							}
+							else
+							{
+								rsdatas[cycles - 1] = memouts[cycles - 1];
+							}
 						}
 					}
-				}
-				if (instnumsrts[cycles - 2-totalst] != 0)
-				{
-					if (toalus[cycles - 2-totalst])
+					if (instnumsrts[cycles - 2 - totalst] != 0)
 					{
-						if (!fromems[cycles - 2-totalst])
+						if (toalus[cycles - 2 - totalst])
 						{
-							if (tofieldrts[cycles - 2-totalst] == 1)
-								rtdatas[cycles - 1] = aluresults[cycles - instnumsrts[cycles - 2]];
-						}
-						else
-						{
-							if (tofieldrts[cycles - 2-totalst] == 1)
-								rtdatas[cycles - 1] = memouts[cycles-1];
+							if (!fromems[cycles - 2 - totalst])
+							{
+								if (tofieldrts[cycles - 2 - totalst] == 1)
+									rtdatas[cycles - 1] = aluresults[cycles - instnumsrts[cycles - 2]];
+							}
+							else
+							{
+								if (tofieldrts[cycles - 2 - totalst] == 1)
+									rtdatas[cycles - 1] = memouts[cycles - 1];
+							}
 						}
 					}
-				}
 
-				alu.EX(zflag, alusrcs[cycles - 2 - totalst], aluops[cycles - 2-totalst], rsdatas[cycles - 1], instarray[cycles - 2-totalst].imm, rtdatas[cycles - 1], aluresults[cycles]);
+					alu.EX(zflag, alusrcs[cycles - 2 - totalst], aluops[cycles - 2 - totalst], rsdatas[cycles - 1], instarray[cycles - 2 - totalst].imm, rtdatas[cycles - 1], aluresults[cycles]);
+					if (aluops[cycles - 2 - totalst] == 2)
+					{
+
+						btb.changestate(pc.getpc(), aluresults,mistake);
+						if (mistake)
+						{
+
+						}
+					}
+					cnt--;
+				}
+				else
+				{
+					if (instnums[cycles - 2] != 0)
+					{
+						if (toalus[cycles - 2])
+						{
+							if (!fromems[cycles - 2])
+							{
+								if (tofields[cycles - 2] == 1)
+									rsdatas[cycles - 1] = aluresults[cycles - instnums[cycles - 2]];
+							}
+							else
+							{
+								rsdatas[cycles - 1] = memouts[cycles - 1];
+							}
+						}
+					}
+					if (instnumsrts[cycles - 2] != 0)
+					{
+						if (toalus[cycles - 2])
+						{
+							if (!fromems[cycles - 2])
+							{
+								if (tofieldrts[cycles - 2] == 1)
+									rtdatas[cycles - 1] = aluresults[cycles - instnumsrts[cycles - 2]];
+							}
+							else
+							{
+								if (tofieldrts[cycles - 2 - totalst] == 1)
+									rtdatas[cycles - 1] = memouts[cycles - 1];
+							}
+						}
+					}
+
+					alu.EX(zflag, alusrcs[cycles - 2], aluops[cycles - 2], rsdatas[cycles - 1], instarray[cycles - 2].imm, rtdatas[cycles - 1], aluresults[cycles]);
+					if (aluops[cycles - 2] == 2)
+					{
+						btb.changestate(pc.getpc(), aluresults,mistake);
+						if (mistake)
+						{
+
+						}
+					}
+				}
+				
 			}
 			if (st > 0)
 			{
@@ -482,20 +628,32 @@ void Processor::execute()
 				cycles++;
 				if (st == 0)
 				{
-					cnt = 3;
+					cnt = 6;
 					totalst += 2;
 				}
 				continue;
 			}
+
 			if (enrf)
 			{
-				registerfile.RF(rsdatas[cycles], rtdatas[cycles], instarray[cycles - 1-totalst].rs, instarray[cycles - 1-totalst].rt);
+				if (cnt == 6)
+				{
+					registerfile.RF(rsdatas[cycles], rtdatas[cycles], instarray[cycles - 1 - totalst].rs, instarray[cycles - 1 - totalst].rt);
+					cnt--;
+				}
+				else
+					registerfile.RF(rsdatas[cycles], rtdatas[cycles], instarray[cycles - 1].rs, instarray[cycles - 1].rt);
 			}
 
 
 
 			if (enis)
+			{
 				imem.IS(pc.getpc(), instarray[cycles]);
+				if (instarray[cycles].inst == "EXIT")
+					ExitCounter = 7;
+			}
+			
 			//cout << instarray[pc.getpc()].type << " " << instarray[pc.getpc()].inst << endl;
 			if (enif)
 				imem.IF();
@@ -535,6 +693,8 @@ void Processor::execute()
 				i3.jimm = 77777;
 				i3.type = 'X';
 				i3.inst = "X";
+				if (cycles == 8)
+					int x = 1;
 				if (cycles > 2)
 				{
 					if (cycles == 3)
@@ -548,8 +708,8 @@ void Processor::execute()
 						tofields[cycles], toalus[cycles], tomems[cycles], fromems[cycles], tofieldrts[cycles], 
 						instnumsrts[cycles]);
 					else if (cycles>5)
-						HU.Forward(instarray[cycles], instarray[cycles - 1], instarray[cycles - 2], instarray[cycles - 3], 
-						instarray[cycles-4], instnums[cycles], tofields[cycles], toalus[cycles], tomems[cycles], fromems[cycles],tofieldrts[cycles]
+						HU.Forward(instarray[cycles], instarray[cycles - 1-totalst], instarray[cycles - 2 - totalst], instarray[cycles - 3-totalst], 
+						instarray[cycles-4-totalst], instnums[cycles], tofields[cycles], toalus[cycles], tomems[cycles], fromems[cycles],tofieldrts[cycles]
 						, instnumsrts[cycles]);
 
 					if (cycles == 3)
@@ -562,9 +722,23 @@ void Processor::execute()
 			}
 			st = stalls[cycles];
 			if (enis)
-				pc.increment(registerfile.Cheat(instarray[cycles].rs), instarray[cycles].jimm, instarray[cycles].imm, jmps[cycles],jps[cycles]);
+			{
+				if (!btb.find(pc.getpc()))
+					btb.insert(pc.getpc(), instarray[cycles].imm);
+				else
+				{
+					if ((btb.getpb(pc.getpc()) == 0) || (btb.getpb(pc.getpc()) == 1))
+						inc = true;
+					else
+						inc = false;
+				}
+				pc.increment(registerfile.Cheat(instarray[cycles].rs), instarray[cycles].jimm, instarray[cycles].imm, jmps[cycles], jps[cycles], inc);
+			}
 			cycles++;
+			if(ExitCounter > 0)
+				ExitCounter--;
 
 	}
+
 }
 

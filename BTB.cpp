@@ -6,27 +6,57 @@ BTB::BTB()
 
 }
 
-void BTB::insert(int pc)
+uint8_t BTB::getpb(int pc)
 {
-	btb[pc] = 0;
+	return btb[pc].pb;
 }
 
-void BTB::changestate(int pc, bool actual)
+bool BTB::find(int pc)
 {
-	if (btb[pc] == 0 && actual)
-		btb[pc] = 1;
-	else if (btb[pc] == 0 && !actual)
-		btb[pc] = 0;
-	else if (btb[pc] == 1 && actual)
-		btb[pc] = 2;
-	else if (btb[pc] == 1 && !actual)
-		btb[pc] = 0;
-	else if (btb[pc] == 2 && actual)
-		btb[pc] = 3;
-	else if (btb[pc] == 2 && !actual)
-		btb[pc] = 1;
-	else if (btb[pc] == 3 && actual)
-		btb[pc] = 3;
-	else if (btb[pc] == 3 && !actual)
-		btb[pc] = 2;
+	unordered_map<int, TT>::const_iterator got = btb.find(pc);
+	if (got != btb.end())
+		return true;
+	else
+		return false;
+}
+
+void BTB::insert(int pc,int imm)
+{
+	TT temp;
+	temp.target = pc+imm;
+	temp.pb = 0;
+	btb[pc] = temp;
+}
+
+void BTB::changestate(int pc, bool actual,bool &mistake)
+{
+	mistake = false;
+	if (btb[pc].pb == 0 && actual)
+	{
+		btb[pc].pb = 1;
+		mistake = true;
+	}
+	else if (btb[pc].pb == 0 && !actual)
+		btb[pc].pb = 0;
+	else if (btb[pc].pb == 1 && actual)
+	{
+		btb[pc].pb = 2;
+		mistake = true;
+	}
+	else if (btb[pc].pb == 1 && !actual)
+		btb[pc].pb = 0;
+	else if (btb[pc].pb == 2 && actual)
+		btb[pc].pb = 3;
+	else if (btb[pc].pb == 2 && !actual)
+	{
+		btb[pc].pb = 1;
+		mistake = true;
+	}
+	else if (btb[pc].pb == 3 && actual)
+		btb[pc].pb = 3;
+	else if (btb[pc].pb == 3 && !actual)
+	{
+		btb[pc].pb = 2;
+		mistake = true;
+	}
 }

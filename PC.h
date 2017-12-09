@@ -1,11 +1,3 @@
-//
-//  PC.hpp
-//  ArchiProj
-//
-//  Created by Mostafa Henna on 12/2/17.
-//  Copyright © 2017 Mostafa Henna. All rights reserved.
-//
-
 #ifndef PC_h
 #define PC_h
 
@@ -19,7 +11,7 @@ class PC
 	int pc;
 public:
 	PC();
-	void increment(int, int, int, uint8_t, bool&);
+	void increment(int, int, int, uint8_t, bool&, bool);
 	int getpc();
 	void setpc(int x);
 };
