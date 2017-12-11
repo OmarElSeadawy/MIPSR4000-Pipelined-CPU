@@ -24,6 +24,7 @@ public:
 	void DataFirst(int, int, bool );
 	void DataSecond(bool, bool,int&);
 	void TagCheck(bool,int &);
+    void getMems(int []);
 };
 
 

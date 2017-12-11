@@ -23,7 +23,7 @@ void ControlUnit::getSignals(char type,string inst, bool & RegWrite, bool & RegD
 		if (inst == "ADD")
 			ALUOp = 0;
 		else if (inst == "XOR")
-			ALUOp = 2;
+			ALUOp = 3;
 		else if (inst == "SLT")
 			ALUOp = 1;
 		else if (inst == "JR")
@@ -47,6 +47,9 @@ void ControlUnit::getSignals(char type,string inst, bool & RegWrite, bool & RegD
 		{
 			jmp = 3;
 			ALUOp = 2;
+			ALUSrc = 0;
+            RegWrite=0;
+            MemWr=0;
 		}
 		else if (inst == "ADDI")
 		{

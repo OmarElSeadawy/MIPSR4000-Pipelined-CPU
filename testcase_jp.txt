@@ -1,0 +1,16 @@
+ADDI $1,$2,50
+J 3
+ADDI $5,$3,10
+ADD $1,$5,$1
+JP 11
+ADDI $1,$2,10
+EXIT 
+ADDI $1,$2,50
+ADDI $5,$3,10
+ADDI $5,$3,10
+ADDI $1,$2,50
+JP 14
+ADDI $9,$9,42
+RP 
+ADDI $9,$1,40
+RP 

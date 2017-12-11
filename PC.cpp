@@ -7,9 +7,10 @@
 //
 
 #include "PC.h"
-
+#include<iostream>
 PC:: PC(): pc(0)
 {}
+
 
 void PC::increment(int rsdata, int jimm, int imm, uint8_t jmp, bool& JP, bool inc)
 {
@@ -52,3 +53,18 @@ void PC::setpc(int x)
 {
 	pc = x;
 }
+
+
+void PC::getStack(vector<QString> &st)
+{
+    stack<int> copied_stack;
+    copied_stack = ProcedureStack;
+    while(!copied_stack.empty())
+    {
+        st.push_back(QString::number(copied_stack.top()));
+        copied_stack.pop();
+        
+    }
+
+}
+

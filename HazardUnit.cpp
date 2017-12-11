@@ -5,12 +5,12 @@ using namespace std;
 
 void HazardUnit::Forward(Instruction i, Instruction i1, Instruction i2, Instruction i3, Instruction i4, uint8_t &instnum, bool &tofield, bool &toalu, bool &tomem, bool &frommem, bool &tofieldrt, uint8_t & instnumrt)
 {
-	if (i.type == 'R' ||  i.inst == "SW")
+	if (i.type == 'R' || i.inst == "SW")
 	{
 		instnum = 0;
 		toalu = 1;
 		tomem = 0;
-		if (i4.type == 'R')
+		if (i4.type == 'R'  && i4.inst != "JR")
 		{
 			if (i4.rd == i.rs)
 			{
@@ -46,7 +46,7 @@ void HazardUnit::Forward(Instruction i, Instruction i1, Instruction i2, Instruct
 			if (i4.inst == "LW")
 				frommem = 1;
 		}
-		if (i3.type == 'R')
+		if (i3.type == 'R' && i3.inst != "JR")
 		{
 			if (i3.rd == i.rs)
 			{
@@ -77,92 +77,98 @@ void HazardUnit::Forward(Instruction i, Instruction i1, Instruction i2, Instruct
 			}
 			if (i3.inst == "LW")
 				frommem = 1;
-			
+
 		}
 
-		if (i2.type == 'R')
+		if (i2.type == 'R'&& i2.inst != "JR")
+		{
+			if (i2.rd == i.rs)
 			{
-				if (i2.rd == i.rs)
+				instnum = 2;
+				tofield = 1;
+			}
+			if (i2.rd == i.rt)
+			{
+				instnumrt = 2;
+				tofieldrt = 1;
+				if (i.inst == "SW")
 				{
-					instnum = 2;
-					tofield = 1;
-				}
-				if (i2.rd == i.rt)
-				{
-					instnumrt = 2;
-					tofieldrt = 1;
-					if (i.inst == "SW")
-					{
-						tomem = 1;
-					}
+					tomem = 1;
 				}
 			}
-			else if (i2.inst == "LW" || i2.inst == "ADDI")
+		}
+		else if (i2.inst == "LW" || i2.inst == "ADDI")
+		{
+			if (i2.rt == i.rs)
 			{
-				if (i2.rt == i.rs)
-				{
-					instnum = 2;
-					tofield = 1;
-				}
-				if (i2.rt == i.rt)
-				{
-					instnumrt = 2;
-					tofieldrt = 1;
-					if (i.inst == "SW")
-					{
-						tomem = 1;
-					}
-				}
-				if (i2.inst == "LW")
-					frommem = 1;
+				instnum = 2;
+				tofield = 1;
 			}
-
-			if (i1.type == 'R')
+			if (i2.rt == i.rt)
 			{
-				if (i1.rd == i.rs)
+				instnumrt = 2;
+				tofieldrt = 1;
+				if (i.inst == "SW")
 				{
-					instnum = 1;
-					tofield = 1;
-				}
-				if (i1.rd == i.rt)
-				{
-					instnumrt = 1;
-					tofieldrt = 1;
-					if (i.inst == "SW")
-					{
-						tomem = 1;
-					}
+					tomem = 1;
 				}
 			}
-			else if (i1.inst == "LW" || i1.inst == "ADDI")
+			if (i2.inst == "LW")
+				frommem = 1;
+		}
+
+		if (i1.type == 'R' && i1.inst != "JR")
+		{
+			if (i1.rd == i.rs)
 			{
-				if (i1.rt == i.rs)
-				{
-					instnum = 1;
-					tofield = 1;
-				}
-				if (i1.rt == i.rt)
-				{
-					instnumrt = 1;
-					tofieldrt = 1;
-					if (i.inst == "SW")
-					{
-						tomem = 1;
-					}
-				}
-				if (i1.inst == "LW")
-					frommem = 1;
+				instnum = 1;
+				tofield = 1;
 			}
+			if (i1.rd == i.rt)
+			{
+				instnumrt = 1;
+				tofieldrt = 1;
+				if (i.inst == "SW")
+				{
+					tomem = 1;
+				}
+			}
+		}
+		else if (i1.inst == "LW" || i1.inst == "ADDI")
+		{
+            if(i.inst=="ADD")
+            {
+                cout << "x";
+            }
+			if (i1.rt == i.rs)
+			{
+				instnum = 1;
+				tofield = 1;
+			}
+			if (i1.rt == i.rt)
+			{
+				instnumrt = 1;
+				tofieldrt = 1;
+				if (i.inst == "SW")
+				{
+					tomem = 1;
+				}
+			}
+			if (i1.inst == "LW")
+				frommem = 1;
+		}
 
 
 
-		
+
 	}
 
 
 
-		else if (i.inst == "ADDI" || i.inst == "LW")
+	else if (i.inst == "ADDI" || i.inst == "LW"||i.inst=="BLE")
 		{
+		if (i.inst == "BLE")
+			instnum = 0;
 			instnum = 0;
 			toalu = 1;
 			tomem = 0;
@@ -187,7 +193,7 @@ void HazardUnit::Forward(Instruction i, Instruction i1, Instruction i2, Instruct
 					frommem = 1;
 			}
 
-			else if (i3.type == 'R')
+			if (i3.type == 'R')
 			{
 				if (i3.rd == i.rs)
 				{
@@ -206,7 +212,7 @@ void HazardUnit::Forward(Instruction i, Instruction i1, Instruction i2, Instruct
 					frommem = 1;
 			}
 
-			else if (i2.type == 'R')
+			if (i2.type == 'R')
 			{
 				if (i2.rd == i.rs)
 				{
@@ -231,6 +237,11 @@ void HazardUnit::Forward(Instruction i, Instruction i1, Instruction i2, Instruct
 				{
 					instnum = 1;
 					tofield = 1;
+				}
+				if (i1.rd == i.rt)
+				{
+					instnumrt = 1;
+					tofieldrt = 1;
 				}
 			}
 			else if (i1.inst == "LW" || i1.inst == "ADDI")

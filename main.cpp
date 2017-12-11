@@ -1,23 +1,11 @@
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <vector>
-#include <bitset>
-#include "Processor.h"
-using namespace std;
+#include "dialog.h"
+#include <QApplication>
 
-int main()
+int main(int argc, char *argv[])
 {
-	Processor p;
-	try{
-		p.loadprogram("suh.txt");
-		p.execute();
-	}
-	catch (string s)
-	{
-		cout << s << endl;
-	}
+    QApplication a(argc, argv);
+    Dialog w;
+    w.show();
 
-	system("pause");
-		return 0;
+    return a.exec();
 }

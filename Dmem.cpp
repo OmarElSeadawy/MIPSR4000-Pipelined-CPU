@@ -50,3 +50,10 @@ void Dmem::TagCheck(bool MemRd,int & loaddata)
 {
 
 }
+void Dmem::getMems(int memory[])
+{
+    for(int i=0; i<32; i++)
+        memory[i] = Memory[i];
+    
+}
+

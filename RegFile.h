@@ -25,6 +25,8 @@ public:
 	void RF(int &, int&, unsigned int , unsigned int);
 	void WB(bool, bool,bool, unsigned int, int,int, unsigned int);
 	int Cheat(int);
+    void getRegs(int []);
+
 	/*bool is_structuralhazard(RegFile& R);
 	if (this.getclock() == R.getclock() && this.writesignal == true && R.getwritesignal() == false)
 	return true;

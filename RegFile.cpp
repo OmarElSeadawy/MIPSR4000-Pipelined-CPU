@@ -56,3 +56,11 @@ int RegFile::Cheat(int x)
 {
 	return REGS[x];
 }
+
+void RegFile::getRegs(int registers[])
+{
+    for(int i=0; i<32; i++)
+        registers[i] = REGS[i];
+    
+    
+}
